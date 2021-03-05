@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+<link rel="icon" href="{{url_for('static', filename='zuzu.png')}}">
+<title>Grammar Pre-Assessment, {{user}}, Period {{per}}</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<style type="text/css"> 
+	input{position: fixed; font-size: 2vh; font-family:'Times New Roman'}
+	img{width: 50vh; height:50vh; display: block; margin-left: auto; margin-right: auto; }
+    #noHL{ 
+		overflow:hidden;
+        -webkit-user-select:none; 
+        -webkit-touch-callout:none; 
+             -moz-user-select:none; 
+             -ms-user-select:none; 
+             user-select:none;    
+       } 
+	   #whole{position: fixed; top:0; bottom:0; left:0; right: 0;}
+	   #comm{color: white; word-wrap:break-word; background-color: black; padding:3%;  width:94%; font-size: 2vw; position:absolute; top:-3vw; left:0; text-align:center;}
+	   #question{font-size:5vw; position: relative; top:10vw; left:1%; padding:1%; width: 96%; line-height:2;}
+	   #next{font-size:4vw; padding:1%; position: fixed; bottom:-2vw; right:0; color: white; background-color: black; text-align:center; z-index: 1000}
+	   
+  
+</style>
+</head>
+<body onload = 'main()' id='noHL'>
+	<div id ='whole'>
+
+		<h1 id = 'comm'>										This is a Quiz</h1>
+		<p id = 'question'> 									Prompts </p>
+		<h1 id = "next" onclick="cycleQ()"> 		Click for Next </h2>
+
+	</div>
+
+<script> 
+var myAnswers = [];
+var tmpAnswer = {};
+
+var eg = '\\e.g.'
+
+var Directions = "Directions: Click to highlight each mistake in grammar, punctuation, or spelling, and type "
++"the correction in the box that appears. Each problem may have 0-3 errors. If you\'re not sure, don\'t guess. <br>" 
++"NOTE: YOU CANNOT GO BACK. Make all of your changes before pressing 'Next.'";
+
+var complete = "You\'ve completed the Grammar Pre-Assessment."
+
+var zuzuB = "<img src=\"{{url_for('static', filename='zuzuB.png')}}\" alt='zuzu the adorable class mascot judges your worthiness'/>"
+
+var Questions = [
+"1. Their are two kinds of people in this world; those who like tea and those who are incorrect.",
+
+"2. He fell to his knees crying, \"I'm going to loose everything!\"",
+
+"3. Have you seen the book which is missing it\'s front cover?",
+
+"4. If Zuzu eats anymore cake he\'s going to explode!",
+
+"5. You should of come to the zoo with Arman and I yesterday.",
+
+"6. Who's cat is this? It's mine now.",
+
+"7. If your not wearing your mask right now, put it on!",
+
+"8. Everyday this week I've pushed myself to walk farther then the day before.",
+
+"9. I'll try and make a prettier cake next time, but decorating is alot more work than I thought!",
+
+"10. I'm so sorry I couldn't be there for you. Is there anyway I can make it up to you?",
+
+"11. She has asthma, so she breaths kind of loud when she runs.",
+
+"12. I tried to log onto my computer but I forgot my password.",
+
+"13. The coffee had no affect on me"+String.fromCharCode(8212)+"I still fell asleep.",
+
+"14. With COVID-19, less people are going out to eat.",
+
+"15. Yesterday, I had an omelette for breakfast, potstickers for lunch, and chicken, asparagus, and rice for dinner.",
+
+"16. I'm going to lay down for a while - after walking up a hundred and fifty two stairs, I'm exhausted!",
+
+"17. Whom do you support; Trump or Biden?",
+
+"18. I'm not feeling very good. Do you have anymore Tylenol?",
+
+"19. My cousin Lee who is an adult now still plays video games as often as he did in college, e.g. too often.",
+
+"20. What's the name of that restaurant who has really good street tacos?",
+
+];
+
+
+var Info  = '';
+var Quest = '';
+var Sub = "";
+var testQ = 0;
+
+function main(){
+
+	Info = document.getElementById('comm');
+	Quest = document.getElementById('question');
+	Sub = document.getElementById('next');
+	Whole = document.getElementById('whole');
+	Info.innerHTML = Directions;
+	update();
+	
+	//var interval = setInterval(function(){
+	//	update();
+	//},40);
+}
+
+function cycleQ(){
+	var tmp = myAnswers.filter(i => i['Q'] == testQ);
+	if(tmp.length == 0){myAnswers.push({"Q":testQ,"O":0, "A":'empty'})}
+	else{
+		for (var i = 0; i < tmp.length; i++){
+			tmpB = document.getElementById("box"+tmp[i]["O"])
+			tmp[i]["A"] = tmpB.value ;
+			tmpB.remove();
+		}
+	}
+	if(testQ <= Questions.length-2){
+		 if (testQ == Questions.length-2){ 
+			Sub.innerHTML = "Submit";
+		 }
+		testQ += 1;
+		update();
+	}
+	else{
+		endTest();
+	}
+}
+
+function endTest(){
+	//pack info to the server
+	Sub.style.visibility = 'hidden';
+	var jsons = JSON.stringify(myAnswers)
+	console.log(jsons)
+	Info.innerHTML = complete
+	Quest.innerHTML = zuzuB
+	
+	$.post( "/postmethod", {
+		javascript_data: jsons
+	});
+	
+}
+
+function highlight(id){
+	st = document.getElementById(id).style;
+	if (st.color == "white"){
+		document.getElementById(id).style = "color:black; background-color:white;";
+		//i love map
+		var ind = myAnswers.map(x => x.Q.toString()+x.O.toString()).indexOf(testQ.toString()+id.toString())
+		document.getElementById('box'+id).remove();
+		myAnswers.splice(ind, 1);
+		tmpAnswer = {"Q":0,"O":0, "A":0};
+	}
+	else{
+		document.getElementById(id).style = "color:white; background-color:black;";
+		popbox(id);
+		tmpAnswer = {"Q":testQ, "O":id, "A":""};
+		myAnswers.push(tmpAnswer);
+	}
+	//console.log(myAnswers);
+}
+
+function popbox(id){
+	var o = document.getElementById(id)
+	var node = document.createElement('input');
+	node.type = 'text';
+	node.id = 'box'+id;
+	var bound = o.getBoundingClientRect();
+	var mid = (bound.right - bound.left -6)//6 offset
+	node.style = "top:"+bound.bottom+"px; left:" +bound.left+"px; width:"+mid+"px;"
+	Whole.appendChild(node)
+	node.focus();
+}
+
+
+function update(){
+	tmp = grep(Questions[testQ].split(re));
+	var tmpT = ""
+	for (var i =0; i < tmp.length; i++) {
+		tmp[i] = "<span id="+i+" onclick= 'highlight("+i+")'>"+tmp[i]+"</span>";
+	}
+	Quest.innerHTML = tmp.join('');
+	//Sub.innerHTML = "Submit your answers for Question #" + (testQ + 1);
+}
+
+
+punct='\\['+ '\\!'+ '\\"'+ '\\#'+ '\\$'+   // since javascript does not
+	  '\\%'+ '\\&'+ '\\\''+ '\\('+ '\\)'+  // support POSIX character
+	  '\\*'+ '\\+'+ '\\,'+ '\\\\'+ '\\-'+  // classes, we'll need our
+	  '\\.'+ '\\/'+ '\\:'+ '\\;'+ '\\<'+   // own version of [:punct:]
+	  '\\='+ '\\>'+ '\\?'+ '\\@'+ '\\['+
+	  '\\]'+ '\\^'+ '\\_'+ '\\`'+ '\\{'+
+	  '\\|'+ '\\}'+ '\\~'+'\\]',
+
+re=new RegExp(     // tokenizer
+  // '\\s*'+            // discard possible leading whitespace
+   '('+               // start capture group
+	 '\\.{3}'+            // ellipsis (must appear before punct)
+   '|'+               // alternator
+	 'e\\.g\\.'+		//e.g.
+   '|'+               // alternator
+	 ' - '+			// ' - ' for an mdash correction
+   '|'+               // alternator
+	 '\\w+\\-\\w+'+       // hyphenated words (must appear before punct)
+   '|'+               // alternator
+	 '\\w+\'(?:\\w+)?'+   // compound words (must appear before punct)
+   '|'+               // alternator
+	 '\\w+'+              // other words
+   '|'+               // alternator
+	 '['+punct+']'+        // punct
+   ')'                // end capture group
+ );
+
+// grep(ary[,filt]) - filters an array
+//   note: could use jQuery.grep() instead
+// @param {Array}    ary    array of members to filter
+// @param {Function} filt   function to test truthiness of member,
+//   if omitted, "function(member){ if(member) return member; }" is assumed
+// @returns {Array}  all members of ary where result of filter is truthy
+function grep(ary,filt) {
+  var result=[];
+  for(var i=0,len=ary.length;i++<len;) {
+    var member=ary[i]||'';
+    if(filt && (typeof filt === 'Function') ? filt(member) : member) {
+      result.push(member);
+    }
+  }
+  return result;
+}
+
+</script>
+</body>
+</html>

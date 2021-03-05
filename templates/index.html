@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+<link rel="icon" href="{{url_for('static', filename='zuzu.png')}}">
+<title>Reed Grammar Pre-Assessment</title>
+<style>
+	#comm{color: white; word-wrap:break-word; background-color: black; padding:3%;  width:94%; font-size: 2vw; position:absolute; top:-3vw; left:0;}
+	#whole{position: absolute; top: 0; right: 0; bottom: 0; left: 0;}
+	#inform{text-align:center;}
+	#fm{}
+	#question{font-size:5vw; position: absolute; top:15%; left:3%;}
+	#question2{font-size:5vw;position: absolute; top:45%; left:3%;}
+	#name{height: 10%; position: absolute; top: 42%; left: 5%; width: 85%; box-sizing: border-box; text-align:center; font-size:2vw;}
+	#period{height: 10%; position: absolute; top: 70%; left: 5%; width: 85%; box-sizing: border-box; text-align:center; font-size:2vw;}
+	#continue{font-family: 'TimesNewRoman'; font-size:4vw; padding:1%; position: fixed; bottom:0vw; right:0; color: white; background-color: black; text-align:center; z-index: 1000;}
+</style>
+</head>
+<body style="overflow:hidden">
+
+<div id="whole">
+	<h1 id = 'comm'>
+		Enter your full name and period (number only).<br/> 
+		Then click CONTINUE.
+	</h1>
+	<div id='inform' style = "">
+		<form action="#" method="post" id='fm'> 
+			<h2 id = 'question' style = "">  First and Last Name: </h2>
+			<input type="text" id="name" name="n"  autofocus/>
+			
+			<h2 id = 'question2'>  Period Number: </h2>
+			<input type="text" id="period" name="p"  autofocus/>
+			<input type="submit" id='continue' value='CONTINUE'/>
+		</form>
+	</div>
+
+
+</div>
+<script> 
+
+</script>
+</body>
+</html>
